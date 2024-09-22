@@ -39,5 +39,6 @@ steps:
     dotnet --version
     echo "Running Hello World from ${{ parameters.environment }} environment"
     dir $(Pipeline.Workspace)/$(artifactName)
+    set RELEASE_ENVIRONMENTNAME=${{ parameters.environment }}
     dotnet $(Pipeline.Workspace)/$(artifactName)/HelloWorld.dll
   displayName: 'Run Hello World from ${{ parameters.environment }}'
