@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'Default'
+  vmImage: 'Azure Pipelines'
 
 variables:
   solution: '**/*.sln'
