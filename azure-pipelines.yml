@@ -14,12 +14,27 @@ container:
   options: --init
 
 steps:
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**'
+    TargetFolder: '/src'
+  displayName: 'Copy project files to container'
+
 - script: |
+    cd /src
     dotnet --version
     dotnet restore
     dotnet build --configuration $(buildConfiguration)
-    dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-  displayName: 'dotnet build and publish'
+    dotnet publish --configuration $(buildConfiguration) --output /app
+  displayName: 'Build and publish inside container'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '/app'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Copy published files from container'
 
 - task: PublishBuildArtifacts@1
   inputs:
