@@ -2,9 +2,9 @@ trigger: none
 
 resources:
   pipelines:
-  - pipeline: HelloWorldBuild  # This name is used to reference the build pipeline in this file
-    source: 'bilal36529.testing_pipeline'  # This should match the name in Azure DevOps
-    trigger: 
+  - pipeline: HelloWorldBuild
+    source: 'bilal36529.testing_pipeline'
+    trigger:
       branches:
         include:
         - main
@@ -32,7 +32,7 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Stage
@@ -58,7 +58,7 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Prod
@@ -84,7 +84,7 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Sandbox
@@ -110,5 +110,5 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
