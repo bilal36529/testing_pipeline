@@ -3,7 +3,7 @@ trigger: none
 resources:
   pipelines:
   - pipeline: HelloWorldBuild
-    source: 'BuildPipeline'  # Updated to match your build pipeline name
+    source: 'BuildPipeline'
     trigger:
       branches:
         include:
@@ -115,7 +115,7 @@ stages:
             displayName: 'Run HelloWorld'
 
 - stage: Sandbox
-  condition: eq(variables['Build.Reason'], 'Manual')
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - job: BuildAndDeploy
     pool:
@@ -129,7 +129,7 @@ stages:
           Invoke-WebRequest -Uri $dotnetUrl -OutFile "dotnet-install.ps1"
           ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
       displayName: 'Install .NET SDK'
-    - checkout: git://bilal36529.testing_pipeline@$(SandboxBranch)
+    - checkout: self
     - script: |
         set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
         dotnet build --configuration Release
