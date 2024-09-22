@@ -2,8 +2,8 @@ trigger: none
 
 resources:
   pipelines:
-  - pipeline: BuildPipeline
-    source: 'Build Pipeline'
+  - pipeline: HelloWorldBuild  # This name is used to reference the build pipeline in this file
+    source: 'bilal36529.testing_pipeline'  # This should match the name in Azure DevOps
     trigger: 
       branches:
         include:
@@ -14,7 +14,9 @@ stages:
   jobs:
   - deployment: DeployToDev
     pool:
-      vmImage: 'windows-latest'
+      name: 'MySelfAgent'
+    container:
+      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Dev'
     strategy:
       runOnce:
@@ -24,18 +26,23 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
               buildVersionToDownload: 'latest'
               downloadType: 'single'
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
+          - script: |
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+            displayName: 'Run HelloWorld'
 
 - stage: Stage
-  condition: succeeded('Dev')
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - deployment: DeployToStage
     pool:
-      vmImage: 'windows-latest'
+      name: 'MySelfAgent'
+    container:
+      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Stage'
     strategy:
       runOnce:
@@ -45,18 +52,23 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
               buildVersionToDownload: 'latest'
               downloadType: 'single'
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
+          - script: |
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+            displayName: 'Run HelloWorld'
 
 - stage: Prod
-  condition: succeeded('Stage')
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - deployment: DeployToProd
     pool:
-      vmImage: 'windows-latest'
+      name: 'MySelfAgent'
+    container:
+      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Prod'
     strategy:
       runOnce:
@@ -66,18 +78,23 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
               buildVersionToDownload: 'latest'
               downloadType: 'single'
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
+          - script: |
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+            displayName: 'Run HelloWorld'
 
 - stage: Sandbox
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
   jobs:
   - deployment: DeployToSandbox
     pool:
-      vmImage: 'windows-latest'
+      name: 'MySelfAgent'
+    container:
+      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Sandbox'
     strategy:
       runOnce:
@@ -87,8 +104,11 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
               buildVersionToDownload: 'latest'
               downloadType: 'single'
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
+          - script: |
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
+            displayName: 'Run HelloWorld'
