@@ -1,5 +1,5 @@
 parameters:
-- name: stage
+- name: environment
   type: string
   default: 'Dev'
   values:
@@ -14,14 +14,14 @@ pool:
   name: 'MySelfAgent'
 
 variables:
-  ${{ if eq(parameters.stage, 'Dev') }}:
-    artifactPath: '$(System.DefaultWorkingDirectory)/Dev'
-  ${{ if eq(parameters.stage, 'Stage') }}:
-    artifactPath: '$(System.DefaultWorkingDirectory)/Stage'
-  ${{ if eq(parameters.stage, 'Prod') }}:
-    artifactPath: '$(System.DefaultWorkingDirectory)/Prod'
-  ${{ if eq(parameters.stage, 'Sandbox') }}:
-    artifactPath: '$(System.DefaultWorkingDirectory)/Sandbox'
+  ${{ if eq(parameters.environment, 'Dev') }}:
+    artifactName: 'DevArtifact'
+  ${{ if eq(parameters.environment, 'Stage') }}:
+    artifactName: 'StageArtifact'
+  ${{ if eq(parameters.environment, 'Prod') }}:
+    artifactName: 'StageArtifact'
+  ${{ if eq(parameters.environment, 'Sandbox') }}:
+    artifactName: 'drop'
 
 steps:
 - task: PowerShell@2
@@ -33,8 +33,13 @@ steps:
       ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
   displayName: 'Install .NET SDK'
 
+- download: current
+  artifact: $(artifactName)
+  displayName: 'Download ${{ parameters.environment }} Artifact'
+
 - script: |
     set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
     dotnet --version
-    dotnet $(artifactPath)/drop/HelloWorld.dll
-  displayName: 'Run Hello World from ${{ parameters.stage }}'
+    echo "Running Hello World from ${{ parameters.environment }} environment"
+    dotnet $(Pipeline.Workspace)/$(artifactName)/HelloWorld.dll
+  displayName: 'Run Hello World from ${{ parameters.environment }}'
