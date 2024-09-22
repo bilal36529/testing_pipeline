@@ -12,7 +12,6 @@ variables:
 container:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   options: --init
-  command: ["tail", "-f", "/dev/null"]  # Keep the container running
 
 steps:
 - script: |
