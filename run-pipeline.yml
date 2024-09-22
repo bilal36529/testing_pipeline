@@ -1,0 +1,31 @@
+parameters:
+- name: stage
+  type: string
+  default: 'Dev'
+  values:
+  - Dev
+  - Stage
+  - Prod
+  - Sandbox
+
+trigger: none
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: DownloadBuildArtifacts@0
+  inputs:
+    buildType: 'specific'
+    project: '$(System.TeamProjectId)'
+    pipeline: '<BuildPipelineId>'
+    specificBuildWithTriggering: false
+    buildVersionToDownload: 'latest'
+    downloadType: 'single'
+    artifactName: 'drop'
+    downloadPath: '$(System.ArtifactsDirectory)'
+
+- script: |
+    cd $(System.ArtifactsDirectory)/drop
+    HelloWorld.exe
+  displayName: 'Run Hello World from ${{ parameters.stage }}'

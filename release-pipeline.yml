@@ -1,0 +1,94 @@
+trigger: none
+
+resources:
+  pipelines:
+  - pipeline: BuildPipeline
+    source: 'Build Pipeline'
+    trigger: 
+      branches:
+        include:
+        - main
+
+stages:
+- stage: Dev
+  jobs:
+  - deployment: DeployToDev
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'Dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'specific'
+              project: '$(System.TeamProjectId)'
+              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              buildVersionToDownload: 'latest'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+- stage: Stage
+  condition: succeeded('Dev')
+  jobs:
+  - deployment: DeployToStage
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'Stage'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'specific'
+              project: '$(System.TeamProjectId)'
+              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              buildVersionToDownload: 'latest'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+- stage: Prod
+  condition: succeeded('Stage')
+  jobs:
+  - deployment: DeployToProd
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'Prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'specific'
+              project: '$(System.TeamProjectId)'
+              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              buildVersionToDownload: 'latest'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+- stage: Sandbox
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+  jobs:
+  - deployment: DeployToSandbox
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'Sandbox'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'specific'
+              project: '$(System.TeamProjectId)'
+              pipeline: '$(resources.pipeline.BuildPipeline.pipelineId)'
+              buildVersionToDownload: 'latest'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
