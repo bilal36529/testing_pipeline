@@ -97,6 +97,9 @@ stages:
               dotnet --version
               dotnet $(Pipeline.Workspace)/StageArtifact/HelloWorld.dll
             displayName: 'Run HelloWorld'
+          - publish: $(Pipeline.Workspace)/StageArtifact
+            artifact: ProdArtifact
+            displayName: 'Publish Prod Artifact'
 
 - stage: Sandbox
   jobs:
