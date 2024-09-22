@@ -34,11 +34,6 @@ stages:
           - download: HelloWorldBuild
             artifact: drop
             displayName: 'Download Latest Build Artifact'
-          - script: |
-              set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
-              dotnet --version
-              dotnet $(Pipeline.Workspace)/HelloWorldBuild/drop/HelloWorld.dll
-            displayName: 'Run HelloWorld'
           - publish: $(Pipeline.Workspace)/HelloWorldBuild/drop
             artifact: DevArtifact
 
@@ -63,11 +58,6 @@ stages:
           - download: current
             artifact: DevArtifact
             displayName: 'Download Dev Artifact'
-          - script: |
-              set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
-              dotnet --version
-              dotnet $(Pipeline.Workspace)/DevArtifact/HelloWorld.dll
-            displayName: 'Run HelloWorld'
           - publish: $(Pipeline.Workspace)/DevArtifact
             artifact: StageArtifact
 
@@ -92,14 +82,8 @@ stages:
           - download: current
             artifact: StageArtifact
             displayName: 'Download Stage Artifact'
-          - script: |
-              set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
-              dotnet --version
-              dotnet $(Pipeline.Workspace)/StageArtifact/HelloWorld.dll
-            displayName: 'Run HelloWorld'
           - publish: $(Pipeline.Workspace)/StageArtifact
             artifact: ProdArtifact
-            displayName: 'Publish Prod Artifact'
 
 - stage: Sandbox
   jobs:
