@@ -3,7 +3,7 @@ trigger: none
 resources:
   pipelines:
   - pipeline: HelloWorldBuild
-    source: 'BuildPipeline'
+    source: 'BuildPipeline'  # Updated to match your build pipeline name
     trigger:
       branches:
         include:
