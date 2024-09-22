@@ -5,8 +5,6 @@ pool:
   name: 'MySelfAgent'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
@@ -22,10 +20,14 @@ steps:
 - script: |
     set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
     dotnet --version
-    dotnet restore
+    dir
+    dotnet new console -n HelloWorld
+    move Program.cs HelloWorld\Program.cs
+    cd HelloWorld
     dotnet build --configuration $(buildConfiguration)
     dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-  displayName: 'Build and publish'
+  workingDirectory: $(Build.SourcesDirectory)
+  displayName: 'Create project, build and publish'
 
 - task: PublishBuildArtifacts@1
   inputs:

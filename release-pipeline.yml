@@ -15,8 +15,6 @@ stages:
   - deployment: DeployToDev
     pool:
       name: 'MySelfAgent'
-    container:
-      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Dev'
     strategy:
       runOnce:
@@ -32,7 +30,7 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Stage
@@ -41,8 +39,6 @@ stages:
   - deployment: DeployToStage
     pool:
       name: 'MySelfAgent'
-    container:
-      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Stage'
     strategy:
       runOnce:
@@ -58,7 +54,7 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Prod
@@ -67,8 +63,6 @@ stages:
   - deployment: DeployToProd
     pool:
       name: 'MySelfAgent'
-    container:
-      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Prod'
     strategy:
       runOnce:
@@ -84,7 +78,7 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Sandbox
@@ -93,8 +87,6 @@ stages:
   - deployment: DeployToSandbox
     pool:
       name: 'MySelfAgent'
-    container:
-      image: mcr.microsoft.com/dotnet/runtime:8.0
     environment: 'Sandbox'
     strategy:
       runOnce:
@@ -110,5 +102,5 @@ stages:
               artifactName: 'drop'
               downloadPath: '$(System.ArtifactsDirectory)'
           - script: |
-              dotnet $(System.ArtifactStagingDirectory)/drop/HelloWorld.dll
+              dotnet $(System.ArtifactsDirectory)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
