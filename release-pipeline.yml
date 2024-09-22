@@ -31,23 +31,19 @@ stages:
                 Invoke-WebRequest -Uri $dotnetUrl -OutFile "dotnet-install.ps1"
                 ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
             displayName: 'Install .NET SDK'
-          - task: DownloadBuildArtifacts@0
-            inputs:
-              buildType: 'specific'
-              project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
-              buildVersionToDownload: 'latest'
-              downloadType: 'single'
-              artifactName: 'drop'
-              downloadPath: '$(System.DefaultWorkingDirectory)/Dev'
+          - download: current
+            artifact: drop
+            source: HelloWorldBuild
+            displayName: 'Download Latest Build Artifact'
           - script: |
               set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
               dotnet --version
-              dotnet $(System.DefaultWorkingDirectory)/Dev/drop/HelloWorld.dll
+              dotnet $(Pipeline.Workspace)/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
+          - publish: $(Pipeline.Workspace)/drop
+            artifact: DevArtifact
 
 - stage: Stage
-  # condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - deployment: DeployToStage
     pool:
@@ -65,23 +61,18 @@ stages:
                 Invoke-WebRequest -Uri $dotnetUrl -OutFile "dotnet-install.ps1"
                 ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
             displayName: 'Install .NET SDK'
-          - task: DownloadBuildArtifacts@0
-            inputs:
-              buildType: 'specific'
-              project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
-              buildVersionToDownload: 'latest'
-              downloadType: 'single'
-              artifactName: 'drop'
-              downloadPath: '$(System.DefaultWorkingDirectory)/Stage'
+          - download: current
+            artifact: DevArtifact
+            displayName: 'Download Dev Artifact'
           - script: |
               set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
               dotnet --version
-              dotnet $(System.DefaultWorkingDirectory)/Stage/drop/HelloWorld.dll
+              dotnet $(Pipeline.Workspace)/DevArtifact/HelloWorld.dll
             displayName: 'Run HelloWorld'
+          - publish: $(Pipeline.Workspace)/DevArtifact
+            artifact: StageArtifact
 
 - stage: Prod
-  # condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - deployment: DeployToProd
     pool:
@@ -99,23 +90,16 @@ stages:
                 Invoke-WebRequest -Uri $dotnetUrl -OutFile "dotnet-install.ps1"
                 ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
             displayName: 'Install .NET SDK'
-          - task: DownloadBuildArtifacts@0
-            inputs:
-              buildType: 'specific'
-              project: '$(System.TeamProjectId)'
-              pipeline: '$(resources.pipeline.HelloWorldBuild.pipelineId)'
-              buildVersionToDownload: 'latest'
-              downloadType: 'single'
-              artifactName: 'drop'
-              downloadPath: '$(System.DefaultWorkingDirectory)/Prod'
+          - download: current
+            artifact: StageArtifact
+            displayName: 'Download Stage Artifact'
           - script: |
               set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
               dotnet --version
-              dotnet $(System.DefaultWorkingDirectory)/Prod/drop/HelloWorld.dll
+              dotnet $(Pipeline.Workspace)/StageArtifact/HelloWorld.dll
             displayName: 'Run HelloWorld'
 
 - stage: Sandbox
-  # condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - job: BuildAndDeploy
     pool:
@@ -132,9 +116,14 @@ stages:
     - checkout: self
     - script: |
         set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
+        dotnet --version
+        dir
+        dotnet new console -n HelloWorld
+        move Program.cs HelloWorld\Program.cs
+        cd HelloWorld
         dotnet build --configuration Release
         dotnet publish --configuration Release --output $(System.DefaultWorkingDirectory)/Sandbox/drop
-      displayName: 'Build and Publish'
+      displayName: 'Create project, build and publish'
     - script: |
         set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
         dotnet --version
