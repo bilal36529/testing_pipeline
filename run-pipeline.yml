@@ -24,8 +24,13 @@ variables:
     artifactName: 'drop'
 
 steps:
-- download: current
-  artifact: $(artifactName)
+- task: DownloadPipelineArtifact@2
+  inputs:
+    source: 'specific'
+    project: '$(System.TeamProjectId)'
+    pipeline: 'ReleasePipeline'
+    runVersion: 'latest'
+    artifact: '$(artifactName)'
   displayName: 'Download ${{ parameters.environment }} Artifact'
 
 - script: |
