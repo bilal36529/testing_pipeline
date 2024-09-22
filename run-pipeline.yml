@@ -31,11 +31,13 @@ steps:
     pipeline: 'ReleasePipeline'
     runVersion: 'latest'
     artifact: '$(artifactName)'
+    path: '$(Pipeline.Workspace)/$(artifactName)'
   displayName: 'Download ${{ parameters.environment }} Artifact'
 
 - script: |
     set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
     dotnet --version
     echo "Running Hello World from ${{ parameters.environment }} environment"
+    dir $(Pipeline.Workspace)/$(artifactName)
     dotnet $(Pipeline.Workspace)/$(artifactName)/HelloWorld.dll
   displayName: 'Run Hello World from ${{ parameters.environment }}'
