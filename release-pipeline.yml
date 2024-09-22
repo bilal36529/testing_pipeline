@@ -47,7 +47,7 @@ stages:
             displayName: 'Run HelloWorld'
 
 - stage: Stage
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+  # condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - deployment: DeployToStage
     pool:
@@ -81,7 +81,7 @@ stages:
             displayName: 'Run HelloWorld'
 
 - stage: Prod
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+  # condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - deployment: DeployToProd
     pool:
@@ -115,7 +115,7 @@ stages:
             displayName: 'Run HelloWorld'
 
 - stage: Sandbox
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+  # condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
   jobs:
   - job: BuildAndDeploy
     pool:
