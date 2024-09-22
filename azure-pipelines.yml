@@ -3,7 +3,6 @@ trigger:
 
 pool:
   name: 'MySelfAgent'
-  vmImage: 'windows-latest'
 
 variables:
   solution: '**/*.sln'
