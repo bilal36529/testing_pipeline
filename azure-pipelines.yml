@@ -10,7 +10,17 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      $dotnetUrl = "https://dot.net/v1/dotnet-install.ps1"
+      Invoke-WebRequest -Uri $dotnetUrl -OutFile "dotnet-install.ps1"
+      ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
+  displayName: 'Install .NET SDK'
+
 - script: |
+    set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
     dotnet --version
     dotnet restore
     dotnet build --configuration $(buildConfiguration)
