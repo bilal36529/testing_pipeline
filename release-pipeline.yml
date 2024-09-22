@@ -31,16 +31,15 @@ stages:
                 Invoke-WebRequest -Uri $dotnetUrl -OutFile "dotnet-install.ps1"
                 ./dotnet-install.ps1 -Channel 8.0 -InstallDir "$(Agent.ToolsDirectory)/dotnet"
             displayName: 'Install .NET SDK'
-          - download: current
+          - download: HelloWorldBuild
             artifact: drop
-            source: HelloWorldBuild
             displayName: 'Download Latest Build Artifact'
           - script: |
               set PATH=$(Agent.ToolsDirectory)/dotnet;%PATH%
               dotnet --version
-              dotnet $(Pipeline.Workspace)/drop/HelloWorld.dll
+              dotnet $(Pipeline.Workspace)/HelloWorldBuild/drop/HelloWorld.dll
             displayName: 'Run HelloWorld'
-          - publish: $(Pipeline.Workspace)/drop
+          - publish: $(Pipeline.Workspace)/HelloWorldBuild/drop
             artifact: DevArtifact
 
 - stage: Stage
